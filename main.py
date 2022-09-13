@@ -228,7 +228,7 @@ def getSavedPreds():
     ############# Comment this section if using get_preds ####################
     global imageShapeX, imageShapeY, tileSize
     # Remove hard coded values
-    if maskArrs is None:
+    if maskArrs is None or len(maskArrs) ==0 :
         return None
     try:
         maskArray = unblockShape(np.array(
