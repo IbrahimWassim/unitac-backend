@@ -228,6 +228,30 @@ def getSavedPreds():
     ############# Comment this section if using get_preds ####################
     global imageShapeX, imageShapeY, tileSize
     # Remove hard coded values
+    print("*"*100)
+    print("\n")
+    print('maskArrs:')
+    print(maskArrs)
+    print("*"*100)
+    print("\n")
+    print("*" * 100)
+    print("\n")
+    print('imageShapeX:')
+    print(imageShapeX)
+    print("*" * 100)
+    print("\n")
+    print("*" * 100)
+    print("\n")
+    print('imageShapeY:')
+    print(imageShapeY)
+    print("*" * 100)
+    print("\n")
+    print("*" * 100)
+    print("\n")
+    print('tileSize:')
+    print(tileSize)
+    print("*" * 100)
+    print("\n")
     try:
         maskArray = unblockShape(np.array(
             maskArrs), (imageShapeX // tileSize)*tileSize, (imageShapeY // tileSize)*tileSize)
