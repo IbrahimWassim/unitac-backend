@@ -258,8 +258,15 @@ def createShpFromMask(file, maskArray):
     # Drop shapes that are too small or too large to be a building
     gdf = gdf[(gdf["area"] > 2) & (gdf["area"] < 500000)]
     pred_name = file.split('\\')[-1]
-    gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp',
-                driver='ESRI Shapefile')
+    if gdf.empty:
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp', driver='ESRI Shapefile', schema=empty_schema,
+                    crs=no_crs)
+    else:
+        gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp',
+                    driver='ESRI Shapefile')
 
 # start detection on the image tiles
 @app.get("/startInference/")
