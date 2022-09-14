@@ -249,7 +249,11 @@ def createShpFromMask(file, maskArray):
     with rasterio.open(file,
                        "r") as src:
         rasterMeta = src.meta
-        
+    print('*'*50)
+    print('\n')
+    print(maskArray)
+    print('*'*50)
+    print('\n')
     # create an empty shapefile and interrupt the function.
     if maskArray is None or len(maskArray) == 1:
         pred_name = file.split('\\')[-1]
