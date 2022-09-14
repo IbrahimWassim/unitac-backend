@@ -243,12 +243,22 @@ def getSavedPreds():
 
 # transform the image to a geo encoded image
 def createShpFromMask(file, maskArray):
+    #todo fix the issue with non-rectongular shapes and images with no settlements.
     print(file)
     global outputFolder
     with rasterio.open(file,
                        "r") as src:
         rasterMeta = src.meta
-
+        
+    # create an empty shapefile and interrupt the function.
+    if maskArray is None or len(maskArray) == 1:
+        pred_name = file.split('\\')[-1]
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp', driver='ESRI Shapefile', schema=empty_schema,
+                    crs=no_crs)
+        return
     shapes = rasterio.features.shapes(maskArray,
                                       transform=rasterMeta["transform"])
     polygons = [
