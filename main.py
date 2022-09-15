@@ -3,7 +3,7 @@ __copyright__ = "Copyright 2022, UNITAC"
 __email__ = "chiranjit.roy@modis.com"
 __status__ = "Production"
 
-
+# git push test
 
 from email import header
 from fastapi import FastAPI, status
@@ -228,6 +228,8 @@ def getSavedPreds():
     ############# Comment this section if using get_preds ####################
     global imageShapeX, imageShapeY, tileSize
     # Remove hard coded values
+    if maskArrs is None or len(maskArrs) ==0 :
+        return None
     try:
         maskArray = unblockShape(np.array(
             maskArrs), (imageShapeX // tileSize)*tileSize, (imageShapeY // tileSize)*tileSize)
@@ -241,12 +243,21 @@ def getSavedPreds():
 
 # transform the image to a geo encoded image
 def createShpFromMask(file, maskArray):
+    #todo fix the issue with non-rectongular shapes and images with no settlements.
     print(file)
     global outputFolder
     with rasterio.open(file,
                        "r") as src:
         rasterMeta = src.meta
-
+    # create an empty shapefile and interrupt the function.
+    if maskArray is None or len(maskArray) == 1:
+        pred_name = file.split('\\')[-1]
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp', driver='ESRI Shapefile', schema=empty_schema,
+                    crs=no_crs)
+        return
     shapes = rasterio.features.shapes(maskArray,
                                       transform=rasterMeta["transform"])
     polygons = [
@@ -258,8 +269,15 @@ def createShpFromMask(file, maskArray):
     # Drop shapes that are too small or too large to be a building
     gdf = gdf[(gdf["area"] > 2) & (gdf["area"] < 500000)]
     pred_name = file.split('\\')[-1]
-    gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp',
-                driver='ESRI Shapefile')
+    if gdf.empty:
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp', driver='ESRI Shapefile', schema=empty_schema,
+                    crs=no_crs)
+    else:
+        gdf.to_file(f'{outputFolder}/{pred_name}_predicted.shp',
+                    driver='ESRI Shapefile')
 
 # start detection on the image tiles
 @app.get("/startInference/")
