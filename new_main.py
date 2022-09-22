@@ -25,7 +25,7 @@ import geopandas as gpd
 
 import log_management.log as log
 
-loadedModel = None
+loaded_model = None
 input_names = []
 output_folder = ""
 tile_dir = "./image_tiles"
@@ -104,10 +104,10 @@ def load_model(model: str):
     """
     Loads the by default model, otherwise, loads the model is the paramter
     """
-    global loadedModel
+    global loaded_model
     # model = './models/exported-model.pkl' if not model else model
     try:
-        loadedModel = load_learner(
+        loaded_model = load_learner(
             model,
             cpu=False if torch.cuda.is_available() else True,
             pickle_module=pickle,
@@ -125,14 +125,14 @@ def load_model(model: str):
 @app.get("/loadOutputDir/")
 def load_output(folder: str):
     """
-    Loasds the output folder on selection. The output folder is the one where we store the output shape files.
+    Loads the output folder on selection. The output folder is the one where we store the output shape files.
     """
     global output_folder
     log.info(f"The Shape files will be exported to: {output_folder}")
     output_folder = folder
-    content = {
-        "selectedOutput": output_folder
-    }
-    headers = {'Access-Control-Allow-Origin': '*'}
-    return JSONResponse(content=content, status_code=status.HTTP_200_OK, headers=headers)
+    content = {"selectedOutput": output_folder}
+    headers = {"Access-Control-Allow-Origin": "*"}
+    return JSONResponse(
+        content=content, status_code=status.HTTP_200_OK, headers=headers
+    )
 
