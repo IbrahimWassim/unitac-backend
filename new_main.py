@@ -97,3 +97,42 @@ def upload_images(folder_path: str):
             return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, headers=headers)
     except ValueError as err:
         log.warn(f"Unexpected {err=}, {type(err)=}")
+
+
+@app.get("/loadModel/")
+def load_model(model: str):
+    """
+    Loads the by default model, otherwise, loads the model is the paramter
+    """
+    global loadedModel
+    # model = './models/exported-model.pkl' if not model else model
+    try:
+        loadedModel = load_learner(
+            model,
+            cpu=False if torch.cuda.is_available() else True,
+            pickle_module=pickle,
+        )
+        log.info(f"Model {model} loaded successfully")
+    except OSError as err:
+        log.warn(f"Unexpected {err=}, {type(err)=}")
+    content = {"selectedModel": model}
+    headers = {"Access-Control-Allow-Origin": "*"}
+    return JSONResponse(
+        content=content, status_code=status.HTTP_200_OK, headers=headers
+    )
+
+
+@app.get("/loadOutputDir/")
+def load_output(folder: str):
+    """
+    Loasds the output folder on selection. The output folder is the one where we store the output shape files.
+    """
+    global output_folder
+    log.info(f"The Shape files will be exported to: {output_folder}")
+    output_folder = folder
+    content = {
+        "selectedOutput": output_folder
+    }
+    headers = {'Access-Control-Allow-Origin': '*'}
+    return JSONResponse(content=content, status_code=status.HTTP_200_OK, headers=headers)
+
