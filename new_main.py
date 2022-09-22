@@ -23,6 +23,8 @@ import sys
 import shapely.geometry
 import geopandas as gpd
 
+import log_management.log as log
+
 loadedModel = None
 input_names = []
 output_folder = ""
@@ -42,3 +44,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    start up event for the whole process to check hardware checkup are proper.
+    """
+    log.info("GPU available: " + str(torch.cuda.is_available()))
+    log.info(torch.cuda.device(0))
+
+
+@app.get("/ping")
+def ping_pong():
+    """
+    Function to help the frontend note when the backend is ready. It is a health check.
+    """
+    headers = {"Access-Control-Allow-Origin": "*"}
+    return JSONResponse(
+        content={"started": True}, status_code=status.HTTP_200_OK, headers=headers
+    )
