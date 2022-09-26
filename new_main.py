@@ -12,7 +12,7 @@ import uvicorn
 from fastai.vision.all import *
 import pandas as pd
 import numpy as np
-import os
+from os import listdir, exit, makedirs, remove
 import glob
 import shutil
 from datetime import datetime
@@ -72,7 +72,7 @@ def exit_process():
     """
     function to exit the process clean
     """
-    os._exit(0)
+    exit(0)
 
 
 @app.get("/uploadImages/")
@@ -151,22 +151,22 @@ def create_tiles(image_path):
     global tile_size
     global image_shape_x, image_shape_y
     if not exists(tile_dir):
-        os.makedirs(tile_dir)
+        makedirs(tile_dir)
     img = np.array(PILImage.create(image_path))
     image_shape_x, image_shape_y, _ = img.shape
     img_name = image_path.split("\\")[-1]
     if exists(join(tile_dir, img_name)):
         filelist = glob.glob(join(tile_dir, img_name, img_name + "*.png"))
         for f in filelist:
-            os.remove(f)
+            remove(f)
     else:
-        os.makedirs(join(tile_dir, img_name))
+        makedirs(join(tile_dir, img_name))
     # Cut tiles and save them
     for i in range(image_shape_x // tile_size):
         for j in range(image_shape_y // tile_size):
             img_tile = img[
-                i * tile_size : (i + 1) * tile_size, j * tile_size : (j + 1) * tile_size
-            ]
+                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
+                       ]
             Image.fromarray(img_tile).save(
                 f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
             )
@@ -184,3 +184,24 @@ def get_image_tiles(nbr_tiles, img_name) -> L:
     files = L()
     files.extend(get_image_files(path=tile_dir, folders=img_name)[:nbr_tiles])
     return files
+
+
+def save_predictions(file):
+    """
+    Saves the intermediary detected images from all tiles. Predicts all tiles of one scene and saves them to disk.
+    """
+    global loaded_model, codes
+    if not exists(predicted_dir):
+        makedirs(predicted_dir)
+    img_name = file.split('\\')[-1]
+    tiles = os_sorted(get_image_tiles(
+        len(listdir(join(tile_dir, img_name))), img_name))
+    for i in range(len(tiles)):
+        pred, _, outputs = loaded_model.predict(tiles[i])
+        output = torch.exp(pred[:, :]).detach().cpu().numpy()
+        np.save(f'{predicted_dir}/saved_{i:02d}', output)
+    outputs = os_sorted(glob.glob(f'{predicted_dir}/*.npy'))
+    if (len(tiles) != len(outputs)):
+        return False
+    else:
+        return True
