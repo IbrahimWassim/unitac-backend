@@ -177,7 +177,7 @@ def create_tiles(image_path):
 
 def get_image_tiles(nbr_tiles, img_name) -> L:
     "Returns a sorted list of the first `n` image tile filenames in `path`"
-    global tileDir
+    global tile_dir
     files = L()
-    files.extend(get_image_files(path=tileDir, folders=img_name)[:nbr_tiles])
+    files.extend(get_image_files(path=tile_dir, folders=img_name)[:nbr_tiles])
     return files
