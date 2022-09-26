@@ -7,6 +7,7 @@ from email import header
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from os.path import join,exists
 import uvicorn
 from fastai.vision.all import *
 import pandas as pd
@@ -23,7 +24,7 @@ import sys
 import shapely.geometry
 import geopandas as gpd
 
-import log_management.log as log
+from log_management import log
 
 loaded_model = None
 input_names = []
@@ -81,8 +82,8 @@ def upload_images(folder_path: str):
     """
     global input_names
     log.info("Images will imported from: " + folder_path)
-    input_names = glob.glob(os.path.join(folder_path, "*.tif"))
-    input_names.extend(glob.glob(os.path.join(folder_path, "*.tiff")))
+    input_names = glob.glob(join(folder_path, "*.tif"))
+    input_names.extend(glob.glob(join(folder_path, "*.tiff")))
     headers = {"Access-Control-Allow-Origin": "*"}
     try:
         if len(input_names) > 0:
@@ -135,4 +136,41 @@ def load_output(folder: str):
     return JSONResponse(
         content=content, status_code=status.HTTP_200_OK, headers=headers
     )
+
+
+def create_tiles(image_path):
+    """
+    cuts the big image (from the path) into tiles with tile size as stated in the global variables. the images are
+    squared.
+    the tiles will be saved under /images_tiles/image_name/...png
+    @todo verify if the tiling works with triangles images.
+    """
+    log.info(f"Start creating tiles for the image {image_path} ...")
+    tilling_start_time = datetime.now()
+    global tile_dir, loaded_model
+    global tile_size
+    global image_shape_x, image_shape_y
+    if not exists(tile_dir):
+        os.makedirs(tile_dir)
+    img = np.array(PILImage.create(image_path))
+    image_shape_x, image_shape_y, _ = img.shape
+    img_name = image_path.split("\\")[-1]
+    if exists(join(tile_dir, img_name)):
+        filelist = glob.glob(join(tile_dir, img_name, img_name + "*.png"))
+        for f in filelist:
+            os.remove(f)
+    else:
+        os.makedirs(join(tile_dir, img_name))
+    # Cut tiles and save them
+    for i in range(image_shape_x // tile_size):
+        for j in range(image_shape_y // tile_size):
+            img_tile = img[
+                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
+                       ]
+            Image.fromarray(img_tile).save(
+                f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
+            )
+    log.info(f"Created tiles for image: {image_path}")
+    tilling_end_time = datetime.now()
+    log.info(f"Tiling time: {(tilling_end_time - tilling_start_time)}")
 
