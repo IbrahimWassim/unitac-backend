@@ -7,7 +7,7 @@ from email import header
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from os.path import join,exists
+from os.path import join, exists
 import uvicorn
 from fastai.vision.all import *
 import pandas as pd
@@ -165,8 +165,8 @@ def create_tiles(image_path):
     for i in range(image_shape_x // tile_size):
         for j in range(image_shape_y // tile_size):
             img_tile = img[
-                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
-                       ]
+                i * tile_size : (i + 1) * tile_size, j * tile_size : (j + 1) * tile_size
+            ]
             Image.fromarray(img_tile).save(
                 f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
             )
@@ -174,3 +174,10 @@ def create_tiles(image_path):
     tilling_end_time = datetime.now()
     log.info(f"Tiling time: {(tilling_end_time - tilling_start_time)}")
 
+
+def get_image_tiles(nbr_tiles, img_name) -> L:
+    "Returns a sorted list of the first `n` image tile filenames in `path`"
+    global tileDir
+    files = L()
+    files.extend(get_image_files(path=tileDir, folders=img_name)[:nbr_tiles])
+    return files
