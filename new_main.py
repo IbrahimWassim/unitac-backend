@@ -186,22 +186,36 @@ def get_image_tiles(nbr_tiles, img_name) -> L:
     return files
 
 
-def save_predictions(file):
+def save_predictions(image_path):
     """
     Saves the intermediary detected images from all tiles. Predicts all tiles of one scene and saves them to disk.
     """
-    global loaded_model, codes
+    global loaded_model
     if not exists(predicted_dir):
         makedirs(predicted_dir)
-    img_name = file.split('\\')[-1]
-    tiles = os_sorted(get_image_tiles(
-        len(listdir(join(tile_dir, img_name))), img_name))
+    img_name = image_path.split("\\")[-1]
+    # get all the tiles from the directory they belong to.
+    tiles = os_sorted(get_image_tiles(len(listdir(join(tile_dir, img_name))), img_name))
+    # @todo more documentation for how the prediction works
     for i in range(len(tiles)):
         pred, _, outputs = loaded_model.predict(tiles[i])
         output = torch.exp(pred[:, :]).detach().cpu().numpy()
-        np.save(f'{predicted_dir}/saved_{i:02d}', output)
-    outputs = os_sorted(glob.glob(f'{predicted_dir}/*.npy'))
-    if (len(tiles) != len(outputs)):
-        return False
-    else:
-        return True
+        np.save(f"{predicted_dir}/saved_{i:02d}", output)
+    outputs = os_sorted(glob.glob(f"{predicted_dir}/*.npy"))
+    return len(tiles) == len(outputs)
+
+
+def merge_tiles(arr, h, w):
+    """
+    combine all output detected tiles into the original shape of teh image
+    @todo add more documentation here
+    """
+
+    try:  # with color channel
+        n, nrows, ncols, c = arr.shape
+        return (arr.reshape(h // nrows, -1, nrows, ncols,
+                            c).swapaxes(1, 2).reshape(h, w, c))
+    except ValueError:  # without color channel
+        n, nrows, ncols = arr.shape
+        return (arr.reshape(h // nrows, -1, nrows,
+                            ncols).swapaxes(1, 2).reshape(h, w))
