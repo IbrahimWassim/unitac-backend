@@ -165,8 +165,8 @@ def create_tiles(image_path):
     for i in range(image_shape_x // tile_size):
         for j in range(image_shape_y // tile_size):
             img_tile = img[
-                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
-                       ]
+                i * tile_size : (i + 1) * tile_size, j * tile_size : (j + 1) * tile_size
+            ]
             Image.fromarray(img_tile).save(
                 f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
             )
@@ -241,3 +241,51 @@ def get_saved_predictions():
         print(f"Unexpected {err=}, {type(err)=}")
 
     return mask_array
+
+
+def create_shp_from_mask(file, mask_array):
+    """
+    Transforms the image to a geo-encoded image
+    todo fix the issue with non-rectongular shapes and images with no settlements.
+    """
+    log.info(f"Start creating shape file from mask for the file {file}")
+    global output_folder
+    with rasterio.open(file, "r") as src:
+        raster_meta = src.meta
+    # create an empty shapefile and interrupt the function.
+    if mask_array is None or len(mask_array) == 1:
+        pred_name = file.split("\\")[-1]
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(
+            f"{output_folder}/{pred_name}_predicted.shp",
+            driver="ESRI Shapefile",
+            schema=empty_schema,
+            crs=no_crs,
+        )
+        return
+    shapes = rasterio.features.shapes(mask_array, transform=raster_meta["transform"])
+    polygons = [
+        shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes
+    ]
+    gdf = gpd.GeoDataFrame(crs=raster_meta["crs"], geometry=polygons)
+    gdf["area"] = gdf["geometry"].area
+    # Drop shapes that are too small or too large to be a building
+    gdf = gdf[(gdf["area"] > 2) & (gdf["area"] < 500000)]
+    pred_name = file.split("\\")[-1]
+    # in case the geo-dataframe is empty which means no settlements are detected
+    if gdf.empty:
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(
+            f"{output_folder}/{pred_name}_predicted.shp",
+            driver="ESRI Shapefile",
+            schema=empty_schema,
+            crs=no_crs,
+        )
+    else:
+        gdf.to_file(
+            f"{output_folder}/{pred_name}_predicted.shp", driver="ESRI Shapefile"
+        )
