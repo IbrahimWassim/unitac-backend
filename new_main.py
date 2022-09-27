@@ -246,7 +246,7 @@ def get_saved_predictions():
 def create_shp_from_mask(file, mask_array):
     """
     Transforms the image to a geo-encoded image
-    todo fix the issue with non-rectongular shapes and images with no settlements.
+    todo fix the issue with non-rectangular shapes and images with no settlements.
     """
     log.info(f"Start creating shape file from mask for the file {file}")
     global output_folder
