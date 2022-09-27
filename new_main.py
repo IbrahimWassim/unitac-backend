@@ -165,8 +165,8 @@ def create_tiles(image_path):
     for i in range(image_shape_x // tile_size):
         for j in range(image_shape_y // tile_size):
             img_tile = img[
-                i * tile_size : (i + 1) * tile_size, j * tile_size : (j + 1) * tile_size
-            ]
+                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
+                       ]
             Image.fromarray(img_tile).save(
                 f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
             )
@@ -219,3 +219,25 @@ def merge_tiles(arr, h, w):
     except ValueError:  # without color channel
         n, nrows, ncols = arr.shape
         return arr.reshape(h // nrows, -1, nrows, ncols).swapaxes(1, 2).reshape(h, w)
+
+
+def get_saved_predictions():
+    """
+    Load saved prediction mask tiles for a scene and return assembled mask
+    """
+    mask_tiles = os_sorted(glob.glob(f"{predicted_dir}/*.npy"))
+    mask_array = list(map(np.load, mask_tiles))
+    global image_shape_x, image_shape_y, tile_size
+    # Remove hard coded values
+    if mask_array is None or len(mask_array) == 0:
+        return None
+    try:
+        mask_array = merge_tiles(
+            np.array(mask_array),
+            (image_shape_x // tile_size) * tile_size,
+            (image_shape_y // tile_size) * tile_size,
+        )
+    except ValueError as err:
+        print(f"Unexpected {err=}, {type(err)=}")
+
+    return mask_array
