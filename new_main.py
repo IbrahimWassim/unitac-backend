@@ -289,3 +289,42 @@ def create_shp_from_mask(file, mask_array):
         gdf.to_file(
             f"{output_folder}/{pred_name}_predicted.shp", driver="ESRI Shapefile"
         )
+
+
+# start detection on the image tiles
+@app.get("/startInference/")
+def create_inferences(file: str):
+    headers = {"Access-Control-Allow-Origin": "*"}
+    process_start = datetime.now()
+    global image_shape_x, image_shape_y
+    inf_start = datetime.now()
+    create_tiles(file)
+    saved_pred = save_predictions(file)
+    inf_finish = datetime.now()
+    log.info(f"Inference time: {(inf_finish - inf_start)}")
+    img_name = file.split("\\")[-1]
+    if not saved_pred:
+        content = {
+            "message": "The tiles and outputs have mismatched, please start the segmenting process again!"
+        }
+        shutil.rmtree(join(tile_dir, img_name))
+        filelist = glob.glob(join(predicted_dir, "*.npy"))
+        for f in filelist:
+            os.remove(f)
+        return JSONResponse(
+            content=content, status_code=status.HTTP_409_CONFLICT, headers=headers
+        )
+
+    else:
+        create_shp_from_mask(file, get_saved_predictions())
+        content = {"message": "Output saved in the Output Folder."}
+
+        shutil.rmtree(join(tile_dir, img_name))
+        filelist = glob.glob(join(predicted_dir, "*.npy"))
+        for f in filelist:
+            os.remove(f)
+        process_finish = datetime.now()
+        log.info(f"Total Time: {(process_finish - process_start)}")
+        return JSONResponse(
+            content=content, status_code=status.HTTP_200_OK, headers=headers
+        )
