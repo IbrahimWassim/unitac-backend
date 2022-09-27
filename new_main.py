@@ -165,8 +165,8 @@ def create_tiles(image_path):
     for i in range(image_shape_x // tile_size):
         for j in range(image_shape_y // tile_size):
             img_tile = img[
-                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
-                       ]
+                i * tile_size : (i + 1) * tile_size, j * tile_size : (j + 1) * tile_size
+            ]
             Image.fromarray(img_tile).save(
                 f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
             )
@@ -213,9 +213,9 @@ def merge_tiles(arr, h, w):
 
     try:  # with color channel
         n, nrows, ncols, c = arr.shape
-        return (arr.reshape(h // nrows, -1, nrows, ncols,
-                            c).swapaxes(1, 2).reshape(h, w, c))
+        return (
+            arr.reshape(h // nrows, -1, nrows, ncols, c).swapaxes(1, 2).reshape(h, w, c)
+        )
     except ValueError:  # without color channel
         n, nrows, ncols = arr.shape
-        return (arr.reshape(h // nrows, -1, nrows,
-                            ncols).swapaxes(1, 2).reshape(h, w))
+        return arr.reshape(h // nrows, -1, nrows, ncols).swapaxes(1, 2).reshape(h, w)
