@@ -16,6 +16,7 @@ from os import listdir, makedirs, remove
 import glob
 import shutil
 from datetime import datetime
+from time import sleep
 import pathlib
 from natsort import os_sorted
 import rasterio
@@ -72,6 +73,7 @@ def exit_process():
     """
     function to exit the process clean
     """
+    sleep(3000)
     os._exit(0)
 
 
