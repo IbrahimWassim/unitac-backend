@@ -12,7 +12,7 @@ import uvicorn
 from fastai.vision.all import *
 import pandas as pd
 import numpy as np
-from os import listdir, exit, makedirs, remove
+from os import listdir, makedirs, remove
 import glob
 import shutil
 from datetime import datetime
@@ -72,7 +72,7 @@ def exit_process():
     """
     function to exit the process clean
     """
-    exit(0)
+    os._exit(0)
 
 
 @app.get("/uploadImages/")
