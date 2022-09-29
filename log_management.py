@@ -5,7 +5,7 @@ from datetime import datetime
 from os import makedirs
 from os.path import exists, join
 
-log_dir = "./log"
+log_dir = "../log"
 if not exists(log_dir):
     makedirs(log_dir)
 now = datetime.now()  # current date and time
