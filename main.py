@@ -109,6 +109,7 @@ def load_model(model: str):
     """
     global loaded_model
     # model = './models/exported-model.pkl' if not model else model
+    log.info(f"The model is: {model}")
     try:
         loaded_model = load_learner(
             model,
