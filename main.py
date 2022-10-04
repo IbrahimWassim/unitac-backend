@@ -88,6 +88,7 @@ def upload_images(folder_path: str):
     """
     function to get images from frontend in a loop from the folder_path.
     """
+    print(F"folder path: {folder_path}")
     global input_names
     log.info("Images will imported from: " + folder_path)
     input_names = glob.glob(join(folder_path, "*.tif"))
