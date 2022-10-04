@@ -50,9 +50,17 @@ temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
 
-def p2c(*_): pass
-def get_msk(*_): pass
-def get_y_augmented(*_): pass
+def p2c(*_):
+    pass
+
+
+def get_msk(*_):
+    pass
+
+
+def get_y_augmented(*_):
+    pass
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -88,7 +96,7 @@ def uploadImages(folder: str):
     """
     function to get images from frontend in a loop from the folder_path.
     """
-    print(F"folder {folder}")
+    print(f"folder {folder}")
     global input_names
     log.info("Images will imported from: " + folder)
     input_names = glob.glob(join(folder, "*.tif"))
@@ -96,8 +104,8 @@ def uploadImages(folder: str):
     headers = {"Access-Control-Allow-Origin": "*"}
     try:
         if len(input_names) > 0:
-            log.info("Input Images are:")
-            log.info("\n".join(input_names))
+            msg_log = "\n".join(input_names)
+            log.info(f"Input Images are:{msg_log}")
             content = {"selectedImages": input_names}
             return JSONResponse(
                 content=content, status_code=status.HTTP_200_OK, headers=headers
