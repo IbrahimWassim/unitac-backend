@@ -83,30 +83,24 @@ def exit_process():
     os._exit(0)
 
 
-@app.get("/uploadImages/")
-def upload_images(folder_path: str):
-    """
-    function to get images from frontend in a loop from the folder_path.
-    """
-    print(F"folder path: {folder_path}")
+def uploadImages(folder: str):
     global input_names
-    log.info("Images will imported from: " + folder_path)
-    input_names = glob.glob(join(folder_path, "*.tif"))
-    input_names.extend(glob.glob(join(folder_path, "*.tiff")))
-    headers = {"Access-Control-Allow-Origin": "*"}
+    print("Input Folder is: " + folder)
+    input_names = glob.glob(os.path.join(folder, "*.tif"))
+    input_names.extend(glob.glob(os.path.join(folder, "*.tiff")))
+    headers = {'Access-Control-Allow-Origin': '*'}
     try:
         if len(input_names) > 0:
-            log.info("Input Images are:")
-            log.info(input_names[0])
-            content = {"selectedImages": input_names}
-            return JSONResponse(
-                content=content, status_code=status.HTTP_200_OK, headers=headers
-            )
+            print("Input Images are:" + input_names[0])
+            content = {
+                "selectedImages": input_names
+            }
+            return JSONResponse(content=content, status_code=status.HTTP_200_OK, headers=headers)
         else:
-            log.warn(f"No images found in {folder_path}")
+            print("No relevant Images")
             return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, headers=headers)
     except ValueError as err:
-        log.warn(f"Unexpected {err=}, {type(err)=}")
+        print(f"Unexpected {err=}, {type(err)=}")
 
 
 @app.get("/loadModel/")
