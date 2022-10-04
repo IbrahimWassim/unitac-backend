@@ -82,7 +82,7 @@ def exit_process():
     sleep(3000)
     os._exit(0)
 
-
+@app.get("/uploadImages/")
 def uploadImages(folder: str):
     global input_names
     print("Input Folder is: " + folder)
