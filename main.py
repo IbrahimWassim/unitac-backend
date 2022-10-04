@@ -105,10 +105,10 @@ def upload_images(folder_path: str):
 @app.get("/loadModel/")
 def load_model(model: str):
     """
-    Loads the by default model, otherwise, loads the model is the parameter
+    Loads the by default model, otherwise, loads athe model is the parameter
     """
-    if model is '' or model is None:
-        model = './models/exported-model/URNet.pkl'
+    if model == '' or model == None:
+        model = './models/URNet.pkl'
     global loaded_model
     # model = './models/exported-model.pkl' if not model else model
     try:
@@ -169,8 +169,8 @@ def create_tiles(image_path):
     for i in range(image_shape_x // tile_size):
         for j in range(image_shape_y // tile_size):
             img_tile = img[
-                i * tile_size : (i + 1) * tile_size, j * tile_size : (j + 1) * tile_size
-            ]
+                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
+                       ]
             Image.fromarray(img_tile).save(
                 f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
             )
