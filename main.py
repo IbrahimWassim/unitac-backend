@@ -105,7 +105,7 @@ def uploadImages(folder: str):
     try:
         if len(input_names) > 0:
             msg_log = "\n".join(input_names)
-            log.info(f"Input Images are:{msg_log}")
+            log.info(f"Input Images are:\n{msg_log}")
             content = {"selectedImages": input_names}
             return JSONResponse(
                 content=content, status_code=status.HTTP_200_OK, headers=headers
