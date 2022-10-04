@@ -114,7 +114,8 @@ def load_model(model: str):
     try:
         loaded_model = load_learner(
             model,
-            cpu=False if torch.cuda.is_available() else True,
+            # cpu=False if torch.cuda.is_available() else True,
+            cpu=True,
             pickle_module=pickle,
         )
         log.info(f"Model {model} loaded successfully")
