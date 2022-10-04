@@ -84,15 +84,15 @@ def exit_process():
 
 
 @app.get("/uploadImages/")
-def uploadImages(folder_path: str):
+def uploadImages(folder: str):
     """
     function to get images from frontend in a loop from the folder_path.
     """
-    print(F"folder {folder_path}")
+    print(F"folder {folder}")
     global input_names
-    log.info("Images will imported from: " + folder_path)
-    input_names = glob.glob(join(folder_path, "*.tif"))
-    input_names.extend(glob.glob(join(folder_path, "*.tiff")))
+    log.info("Images will imported from: " + folder)
+    input_names = glob.glob(join(folder, "*.tif"))
+    input_names.extend(glob.glob(join(folder, "*.tiff")))
     headers = {"Access-Control-Allow-Origin": "*"}
     try:
         if len(input_names) > 0:
@@ -103,7 +103,7 @@ def uploadImages(folder_path: str):
                 content=content, status_code=status.HTTP_200_OK, headers=headers
             )
         else:
-            log.warn(f"No images found in {folder_path}")
+            log.warn(f"No images found in {folder}")
             return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, headers=headers)
     except ValueError as err:
         log.warn(f"Unexpected {err=}, {type(err)=}")
