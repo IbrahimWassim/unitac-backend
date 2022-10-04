@@ -46,7 +46,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+temp = pathlib.PosixPath
+pathlib.PosixPath = pathlib.WindowsPath
 
+
+def p2c(*_): pass
+def get_msk(*_): pass
+def get_y_augmented(*_): pass
 
 @app.on_event("startup")
 async def startup_event():
