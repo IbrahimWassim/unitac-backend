@@ -107,6 +107,8 @@ def load_model(model: str):
     """
     Loads the by default model, otherwise, loads the model is the parameter
     """
+    if model is '' or model is None:
+        model = './models/exported-model/URNet.pkl'
     global loaded_model
     # model = './models/exported-model.pkl' if not model else model
     try:
