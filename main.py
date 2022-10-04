@@ -105,10 +105,11 @@ def upload_images(folder_path: str):
 @app.get("/loadModel/")
 def load_model(model: str):
     """
-    Loads the by default model, otherwise, loads the model is the paramter
+    Loads the by default model, otherwise, loads the model is the parameter
     """
     global loaded_model
     # model = './models/exported-model.pkl' if not model else model
+    model = "./models/UNet.pkl"
     try:
         loaded_model = load_learner(
             model,
