@@ -3,14 +3,12 @@ __copyright__ = "Copyright 2022, UNITAC"
 __email__ = "wassim.brahim@un.org"
 __status__ = "Production"
 
-from email import header
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from os.path import join, exists
 import uvicorn
 from fastai.vision.all import *
-import pandas as pd
 import numpy as np
 from os import listdir, makedirs, remove
 import glob
@@ -21,7 +19,6 @@ import pathlib
 from natsort import os_sorted
 import rasterio
 import rasterio.features
-import sys
 import shapely.geometry
 import geopandas as gpd
 
