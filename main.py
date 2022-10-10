@@ -282,6 +282,11 @@ def create_shp_from_mask(file, mask_array):
         return
     mask_array = np.array(mask_array)
     shapes = rasterio.features.shapes(mask_array, transform=raster_meta["transform"])
+    print('*'*100)
+    print('shapes')
+    print(shapes)
+    print('*'*100)
+
     polygons = [
         shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes
     ]
@@ -305,6 +310,10 @@ def create_shp_from_mask(file, mask_array):
             crs=no_crs,
         )
     else:
+        print('*' * 100)
+        print('shapes')
+        print(gdf)
+        print('*' * 100)
         gdf.to_file(
             f"{output_folder}/{pred_name}_predicted.shp", driver="ESRI Shapefile"
         )
