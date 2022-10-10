@@ -281,9 +281,9 @@ def create_shp_from_mask(file, mask_array):
         )
         return
     shapes = rasterio.features.shapes(mask_array, transform=raster_meta["transform"])
-    polygons = [
+    polygons =np.array( [
         shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes
-    ]
+    ])
     # Bug here with non-rectangular images.
     # Maybe the solution is to make all the images rectangular by adding white pixels
     my_list = raster_meta["crs"]
