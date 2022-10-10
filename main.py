@@ -222,7 +222,7 @@ def save_predictions(image_path):
 
 def merge_tiles(arr, h, w):
     """
-    combine all output detected tiles into the original shape of teh image
+    combines all output detected tiles into the original shape of the image
     @todo add more documentation here
     """
 
@@ -284,7 +284,10 @@ def create_shp_from_mask(file, mask_array):
     polygons = [
         shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes
     ]
-    gdf = gpd.GeoDataFrame(crs=raster_meta["crs"], geometry=polygons)
+    # Bug here with non-rectangular images.
+    # Maybe the solution is to make all the images rectangular by adding white pixels
+    my_list = raster_meta["crs"]
+    gdf = gpd.GeoDataFrame(crs=my_list, geometry=polygons)
     gdf["area"] = gdf["geometry"].area
     # Drop shapes that are too small or too large to be a building
     gdf = gdf[(gdf["area"] > 2) & (gdf["area"] < 500000)]
@@ -305,6 +308,7 @@ def create_shp_from_mask(file, mask_array):
             f"{output_folder}/{pred_name}_predicted.shp", driver="ESRI Shapefile"
         )
 
+#  I should check here the current stage with randomly shapes images
 
 # start detection on the image tiles
 @app.get("/startInference/")
