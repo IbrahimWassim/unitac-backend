@@ -282,7 +282,7 @@ def create_shp_from_mask(file, mask_array):
     shapes = np.array(
         rasterio.features.shapes(mask_array, transform=raster_meta["transform"])
     )
-    if shapes is None or len(shapes) == 0:
+    if shapes is None or shapes.size == 0:
         polygons = []
     else:
         polygons = [
