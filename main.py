@@ -284,12 +284,9 @@ def create_shp_from_mask(file, mask_array):
     print('shapes')
     print(shapes)
     print('\n\n\n')
-    if shapes is None or len(shapes) == 0:
-        polygons = []
-    else:
-        polygons = [
-            shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes
-        ]
+    polygons = [
+        shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes
+    ]
     # Bug here with non-rectangular images.
     # Maybe the solution is to make all the images rectangular by adding white pixels
     my_list = raster_meta["crs"]
