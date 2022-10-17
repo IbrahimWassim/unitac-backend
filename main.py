@@ -267,6 +267,12 @@ def create_shp_from_mask(file, mask_array):
     with rasterio.open(file, "r") as src:
         raster_meta = src.meta
     # create an empty shapefile and interrupt the function.
+    print('\n\n\n')
+    print('mask_array')
+    print(type(mask_array))
+    print(len(mask_array))
+    print(mask_array)
+    print('\n\n\n')
     if mask_array is None or len(mask_array) == 1:
         pred_name = file.split("\\")[-1]
         empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
