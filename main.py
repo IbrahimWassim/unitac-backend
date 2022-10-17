@@ -282,7 +282,8 @@ def create_shp_from_mask(file, mask_array):
     shapes = np.array(rasterio.features.shapes(mask_array, transform=raster_meta["transform"]))
     print('\n\n\n')
     print('shapes')
-    print(shapes)
+    print(shapes.shape)
+    print(shapes.dtype)
     print('\n\n\n')
     polygons = [
         shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes
