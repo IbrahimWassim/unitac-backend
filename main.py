@@ -179,8 +179,8 @@ def create_tiles(image_path):
     for i in range(image_shape_x // tile_size):
         for j in range(image_shape_y // tile_size):
             img_tile = img[
-                i * tile_size : (i + 1) * tile_size, j * tile_size : (j + 1) * tile_size
-            ]
+                       i * tile_size: (i + 1) * tile_size, j * tile_size: (j + 1) * tile_size
+                       ]
             Image.fromarray(img_tile).save(
                 f"{join(tile_dir, img_name)}/{img_name}_000{i * (image_shape_x // tile_size) + j}.png"
             )
@@ -279,10 +279,12 @@ def create_shp_from_mask(file, mask_array):
             crs=no_crs,
         )
         return
-    shapes = np.array(
-        rasterio.features.shapes(mask_array, transform=raster_meta["transform"])
-    )
-    if len(shapes.shape) == 0:
+    shapes = np.array(rasterio.features.shapes(mask_array, transform=raster_meta["transform"]))
+    print('\n\n\n')
+    print('shapes')
+    print(shapes)
+    print('\n\n\n')
+    if shapes is None or len(shapes) == 0:
         polygons = []
     else:
         polygons = [
