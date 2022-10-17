@@ -282,6 +282,7 @@ def create_shp_from_mask(file, mask_array):
     shapes = np.array(rasterio.features.shapes(mask_array, transform=raster_meta["transform"]))
     print('\n\n\n')
     print('shapes')
+    print(type(shapes))
     print(shapes.shape)
     print(shapes.dtype)
     print('\n\n\n')
