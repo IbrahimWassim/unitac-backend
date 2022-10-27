@@ -10,7 +10,7 @@ from os.path import join, exists
 import uvicorn
 from fastai.vision.all import *
 import numpy as np
-from os import listdir, makedirs, remove
+from os import listdir, makedirs, remove, stat
 import glob
 import shutil
 from datetime import datetime
@@ -166,6 +166,7 @@ def create_tiles(image_path):
     global image_shape_x, image_shape_y
     if not exists(tile_dir):
         makedirs(tile_dir)
+    # add condition to test the file size if it is 0 then just return?
     img = np.array(PILImage.create(image_path))
     image_shape_x, image_shape_y, _ = img.shape
     img_name = image_path.split("\\")[-1]
@@ -260,7 +261,7 @@ def get_saved_predictions():
 def create_shp_from_mask(file, mask_array):
     """
     Transforms the image to a geo-encoded image
-    todo fix the issue with non-rectangular shapes and images with no settlements.
+    todo add here the test if the image is a blank one, then return an empty shape file.
     """
     log.info(f"Start creating shape file from mask for the file {file}")
     global output_folder
@@ -318,6 +319,24 @@ def create_inferences(file: str):
     process_start = datetime.now()
     global image_shape_x, image_shape_y
     inf_start = datetime.now()
+    if (os.stat(file).st_size == 0):
+        log.warn(f"The image {file} is empty and no tiles will be created.")
+        pred_name = file.split("\\")[-1]
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(
+            f"{output_folder}/{pred_name}_predicted.shp",
+            driver="ESRI Shapefile",
+            schema=empty_schema,
+            crs=no_crs,
+        )
+
+        content = {"message": "An empty Shape file for the empty image is stored."}
+        return JSONResponse(
+            content=content, status_code=status.HTTP_200_OK, headers=headers
+        )
+
     create_tiles(file)
     saved_pred = save_predictions(file)
     inf_finish = datetime.now()
