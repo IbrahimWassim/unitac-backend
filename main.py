@@ -166,6 +166,7 @@ def create_tiles(image_path):
     global image_shape_x, image_shape_y
     if not exists(tile_dir):
         makedirs(tile_dir)
+    # add condition to test the file size if it is 0 then just return?
     img = np.array(PILImage.create(image_path))
     image_shape_x, image_shape_y, _ = img.shape
     img_name = image_path.split("\\")[-1]
@@ -264,10 +265,6 @@ def create_shp_from_mask(file, mask_array):
     """
     log.info(f"Start creating shape file from mask for the file {file}")
     global output_folder
-    print("\n\n\n\n\n\n\n\n\n")
-    print("file size")
-    print(os.stat(file).st_size)
-    print("\n\n\n\n\n\n\n\n\n")
     with rasterio.open(file, "r") as src:
         raster_meta = src.meta
     # create an empty shapefile and interrupt the function.
@@ -322,6 +319,10 @@ def create_inferences(file: str):
     process_start = datetime.now()
     global image_shape_x, image_shape_y
     inf_start = datetime.now()
+    print("\n\n\n\n\n\n\n\n\n")
+    print("file size")
+    print(os.stat(file).st_size)
+    print("\n\n\n\n\n\n\n\n\n")
     create_tiles(file)
     saved_pred = save_predictions(file)
     inf_finish = datetime.now()
