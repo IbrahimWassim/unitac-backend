@@ -319,10 +319,23 @@ def create_inferences(file: str):
     process_start = datetime.now()
     global image_shape_x, image_shape_y
     inf_start = datetime.now()
-    print("\n\n\n\n\n\n\n\n\n")
-    print("file size")
-    print(os.stat(file).st_size)
-    print("\n\n\n\n\n\n\n\n\n")
+    if (os.stat(file).st_size == 0):
+        log.info(f"The image {file} is empty and no tiles will be created.")
+        pred_name = file.split("\\")[-1]
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(
+            f"{output_folder}/{pred_name}_predicted.shp",
+            driver="ESRI Shapefile",
+            schema=empty_schema,
+            crs=no_crs,
+        )
+        content = {"message": "An empty Shape file for the empty image is stored."}
+        return JSONResponse(
+            content=content, status_code=status.HTTP_200_OK, headers=headers
+        )
+
     create_tiles(file)
     saved_pred = save_predictions(file)
     inf_finish = datetime.now()
