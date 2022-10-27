@@ -10,7 +10,7 @@ from os.path import join, exists
 import uvicorn
 from fastai.vision.all import *
 import numpy as np
-from os import listdir, makedirs, remove
+from os import listdir, makedirs, remove, stat
 import glob
 import shutil
 from datetime import datetime
@@ -260,10 +260,14 @@ def get_saved_predictions():
 def create_shp_from_mask(file, mask_array):
     """
     Transforms the image to a geo-encoded image
-    todo fix the issue with non-rectangular shapes and images with no settlements.
+    todo add here the test if the image is a blank one, then return an empty shape file.
     """
     log.info(f"Start creating shape file from mask for the file {file}")
     global output_folder
+    print("\n\n\n\n\n\n\n\n\n")
+    print("file size")
+    print(os.stat(file).st_size)
+    print("\n\n\n\n\n\n\n\n\n")
     with rasterio.open(file, "r") as src:
         raster_meta = src.meta
     # create an empty shapefile and interrupt the function.
