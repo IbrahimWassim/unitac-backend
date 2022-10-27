@@ -320,7 +320,7 @@ def create_inferences(file: str):
     global image_shape_x, image_shape_y
     inf_start = datetime.now()
     if (os.stat(file).st_size == 0):
-        log.info(f"The image {file} is empty and no tiles will be created.")
+        log.warn(f"The image {file} is empty and no tiles will be created.")
         pred_name = file.split("\\")[-1]
         empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
         no_crs = None
