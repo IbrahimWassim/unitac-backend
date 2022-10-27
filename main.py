@@ -320,7 +320,6 @@ def create_inferences(file: str):
     global image_shape_x, image_shape_y
     inf_start = datetime.now()
     if (os.stat(file).st_size == 0):
-        img_name = file.split("\\")[-1]
         log.info(f"The image {file} is empty and no tiles will be created.")
         pred_name = file.split("\\")[-1]
         empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
@@ -332,12 +331,7 @@ def create_inferences(file: str):
             schema=empty_schema,
             crs=no_crs,
         )
-        shutil.rmtree(join(tile_dir, img_name))
-        filelist = glob.glob(join(predicted_dir, "*.npy"))
-        for f in filelist:
-            os.remove(f)
-        process_finish = datetime.now()
-        log.info(f"Total Time: {(process_finish - process_start)}")
+
         content = {"message": "An empty Shape file for the empty image is stored."}
         return JSONResponse(
             content=content, status_code=status.HTTP_200_OK, headers=headers
