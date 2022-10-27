@@ -319,40 +319,51 @@ def create_inferences(file: str):
     process_start = datetime.now()
     global image_shape_x, image_shape_y
     inf_start = datetime.now()
-    print("\n\n\n\n\n\n\n\n\n")
-    print("file size")
-    print(os.stat(file).st_size)
-    print("\n\n\n\n\n\n\n\n\n")
-    create_tiles(file)
-    saved_pred = save_predictions(file)
-    inf_finish = datetime.now()
-    log.info(f"Inference time: {(inf_finish - inf_start)}")
-    img_name = file.split("\\")[-1]
-    if not saved_pred:
-        content = {
-            "message": "The tiles and outputs have mismatched, please start the segmenting process again!"
-        }
-        shutil.rmtree(join(tile_dir, img_name))
-        filelist = glob.glob(join(predicted_dir, "*.npy"))
-        for f in filelist:
-            os.remove(f)
-        return JSONResponse(
-            content=content, status_code=status.HTTP_409_CONFLICT, headers=headers
+    file_size = os.stat(file).st_size
+    # urgent fixing for the issue with empty images (images with no content).
+    if file_size == 0:
+        log.info(f"Start creating shape file from mask for the file {file}")
+        pred_name = file.split("\\")[-1]
+        empty_schema = {"geometry": "Polygon", "properties": {"id": "int"}}
+        no_crs = None
+        gdf = gpd.GeoDataFrame(geometry=[])
+        gdf.to_file(
+            f"{output_folder}/{pred_name}_predicted.shp",
+            driver="ESRI Shapefile",
+            schema=empty_schema,
+            crs=no_crs,
         )
-
     else:
-        create_shp_from_mask(file, get_saved_predictions())
-        content = {"message": "Output saved in the Output Folder."}
+        create_tiles(file)
+        saved_pred = save_predictions(file)
+        inf_finish = datetime.now()
+        log.info(f"Inference time: {(inf_finish - inf_start)}")
+        img_name = file.split("\\")[-1]
+        if not saved_pred:
+            content = {
+                "message": "The tiles and outputs have mismatched, please start the segmenting process again!"
+            }
+            shutil.rmtree(join(tile_dir, img_name))
+            filelist = glob.glob(join(predicted_dir, "*.npy"))
+            for f in filelist:
+                os.remove(f)
+            return JSONResponse(
+                content=content, status_code=status.HTTP_409_CONFLICT, headers=headers
+            )
 
-        shutil.rmtree(join(tile_dir, img_name))
-        filelist = glob.glob(join(predicted_dir, "*.npy"))
-        for f in filelist:
-            os.remove(f)
-        process_finish = datetime.now()
-        log.info(f"Total Time: {(process_finish - process_start)}")
-        return JSONResponse(
-            content=content, status_code=status.HTTP_200_OK, headers=headers
-        )
+        else:
+            create_shp_from_mask(file, get_saved_predictions())
+            content = {"message": "Output saved in the Output Folder."}
+
+            shutil.rmtree(join(tile_dir, img_name))
+            filelist = glob.glob(join(predicted_dir, "*.npy"))
+            for f in filelist:
+                os.remove(f)
+            process_finish = datetime.now()
+            log.info(f"Total Time: {(process_finish - process_start)}")
+            return JSONResponse(
+                content=content, status_code=status.HTTP_200_OK, headers=headers
+            )
 
 
 if __name__ == "__main__":
